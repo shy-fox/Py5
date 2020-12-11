@@ -259,8 +259,6 @@ class Py5:
         dec_part = _n[decimal_index + 1:] if decimal_index != -1 else ''
         string = '-' if neg else ''
 
-        print(f"int_part: {int_part}")
-
         tmp = re.split(r"(?=(?:\d{3})*$)", int_part)
 
         tmp_string = ",".join(tmp)
