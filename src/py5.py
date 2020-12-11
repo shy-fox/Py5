@@ -1,6 +1,7 @@
+import math
+import re
 from enum import Enum
 from typing import List
-import math
 
 
 class Py5:
@@ -192,3 +193,82 @@ class Py5:
             return 1.0
         return n * Py5.fact(n - 1)
 
+    @staticmethod
+    def map(n: float, start1: float, stop1: float, start2: float, stop2: float) -> float:
+        """ Maps a value of a range to a different given range. """
+        new_val = (n + start1) / (stop1 - start1) * (stop2 - start2) + start2
+        if start2 < stop2:
+            return Py5.constrain(new_val, start2, stop2)
+        else:
+            return Py5.constrain(new_val, stop2, start2)
+
+    @staticmethod
+    def max(*args: float, nf=False) -> float:
+        """ Returns the maximum value from the given list. """
+        record_index = 0
+        for i in range(len(args)):
+            if args[i] > args[record_index]:
+                record_index = i
+
+        return args[record_index]
+
+    @staticmethod
+    def nf(n: float, left=0, right=0) -> str:
+        neg = n < 0
+        _n = str(n)[1:] if neg else str(n)
+        try:
+            decimal_index = _n.index('.')
+        except ValueError:
+            decimal_index = -1
+        int_part = _n[0:decimal_index] if decimal_index != -1 else _n
+        dec_part = _n[decimal_index + 1:] if decimal_index != -1 else ''
+        string = '-' if neg else ''
+
+        if right > 0:
+            decimal = ''
+            if decimal_index != -1 or right - len(dec_part) > 0:
+                decimal = '.'
+            if len(dec_part) > right:
+                dec_part = dec_part[0:right]
+            for _ in range(left - len(int_part)):
+                string += '0'
+
+            string += int_part
+            string += decimal
+            string += dec_part
+
+            for _ in range(right - len(dec_part)):
+                string += '0'
+            return string
+        else:
+            for _ in range(int(Py5.max(left - len(int_part), 0))):
+                string += '0'
+
+            string += _n
+            return string
+
+    @staticmethod
+    def num(n: float) -> str:
+        neg = n < 0
+        _n = str(n)[1:] if neg else str(n)
+        try:
+            decimal_index = _n.index('.')
+        except ValueError:
+            decimal_index = -1
+        int_part = _n[0:decimal_index] if decimal_index != -1 else _n
+        dec_part = _n[decimal_index + 1:] if decimal_index != -1 else ''
+        string = '-' if neg else ''
+
+        print(f"int_part: {int_part}")
+
+        tmp = re.split(r"(?=(?:\d{3})*$)", int_part)
+
+        tmp_string = ",".join(tmp)
+
+        string += tmp_string[1:len(tmp_string) - 1]
+
+        if decimal_index != -1:
+            string += '.'
+            string += dec_part
+
+        return string
