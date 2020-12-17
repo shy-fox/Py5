@@ -517,7 +517,7 @@ class Py5FileReader:
         Reads the specified file and returns its content in a list form.
         :raises FileNotFoundError If the specified file isn't existing.
         :param file: The path to the file.
-        :param line: Up to the specified line, **works only for text-type files**.
+        :param line: Reads only specified line, **works only for text-type files**.
         :param delimiter: Removes the end of the line if not specified, **works only for text-type files**.
         :param ext: The file extension.
         :return: The file contents.
