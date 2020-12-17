@@ -2,11 +2,11 @@ import math
 import random
 import re
 from enum import Enum
-from typing import TypeVar, Union
 from os import path
+from typing import TypeVar, Union, Optional
 
-from Py5Vector import Py5Vector
 from Arrays import Arrays
+from Py5Vector import Py5Vector
 
 
 class Py5:
@@ -481,4 +481,22 @@ class Py5FileReader:
             return value
         elif ext.value == "xml":
             values = {}
-            
+
+            return values
+
+    @staticmethod
+    def read(file: str, line: Optional[int] = None,
+             delimiter: str = "\n") -> Union[list[str], str]:
+        data: list[str] = []
+        if not path.isfile(file):
+            raise FileNotFoundError(f"No such file, open '{file}'")
+        file = open(file, "r")
+        current_line = 0
+        for ln in file:
+            current_line += 1
+            data.append(ln.strip(delimiter))
+            if line is not None:
+                if current_line == line:
+                    return ln
+        file.close()
+        return data
