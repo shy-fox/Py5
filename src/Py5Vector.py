@@ -1,4 +1,7 @@
 class Py5Vector(object):
+
+    """ A point-like object which can be moved. """
+
     x: float
     y: float
     z: float
