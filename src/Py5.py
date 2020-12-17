@@ -52,7 +52,7 @@ class Py5:
 
     class Py5ModeError(Exception):
         def __init__(self, message: str):
-            super().__init__(f"⩕ {message}")
+            super().__init__(f"Mode🌸 {message}")
 
     class Py5Error(Exception):
         def __init__(self, message: str):
@@ -83,6 +83,8 @@ class Py5:
     @staticmethod
     def angle_mode(mode: MODE) -> None:
         """ Set mode to radians or degrees. """
+        if mode == Py5.mode:
+            raise Py5.Py5ModeError(f"Mode already set to {mode}")
         Py5.mode = mode
 
     @staticmethod
