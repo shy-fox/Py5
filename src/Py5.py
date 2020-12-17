@@ -4,12 +4,16 @@ import re
 from enum import Enum
 from os import path
 from typing import TypeVar, Union, Optional
+import csv as xls
 
 from Arrays import Arrays
 from Py5Vector import Py5Vector
 
 
 class Py5:
+
+    """ An all-in-one tool to do multiple tasks easier. """
+
     T = TypeVar('T', object, int, float, str)
 
     __PERLIN_Y_WRAP_B__ = 4
@@ -58,10 +62,12 @@ class Py5:
 
     @staticmethod
     def deg(rad: float) -> float:
+        """ Converts *radians* to *degrees*. """
         return rad * 180 / Py5.PI
 
     @staticmethod
     def rad(deg: float) -> float:
+        """ Converts *degrees* to *radians*. """
         return deg * Py5.PI / 180
 
     @staticmethod
@@ -315,6 +321,7 @@ class Py5:
 
     @staticmethod
     def noise(x: float, y=0, z=0) -> float:
+        """ Returns a random number from a given interval and seed. """
         if Py5.__perlin__ is None:
             Py5.__perlin__ = [Py5.random() for _ in range(Py5.__PERLIN_SIZE__ + 1)]
 
@@ -386,9 +393,11 @@ class Py5:
         return Py5Vector(x, y, z, w)
 
     class Color(object):
+        """ A color object which might be useful for *pygame*. """
         color: dict[str, float]
 
         def __init__(self, args: tuple[float, ...]):
+            """ Creates a new color object with 4 values: ``r,g,b,a``. """
             if len(args) == 1:
                 color_val = args[0] % 255
                 self.color = {"r": color_val, "g": color_val, "b": color_val, "a": 255}
@@ -404,55 +413,71 @@ class Py5:
                 raise Py5.Py5Error(f"Expected between 1 or 4 arguments. Got {len(args)} instead")
 
         def red(self, val: float = None) -> float:
+            """ Sets or gets the red value. """
             if val is None:
                 return self.color["r"]
             else:
                 self.color["r"] = val % 255
 
         def green(self, val: float = None) -> float:
+            """ Sets or gets the green value. """
             if val is None:
                 return self.color["g"]
             else:
                 self.color["g"] = val % 255
 
         def blue(self, val: float = None) -> float:
+            """ Sets or gets the blue value. """
             if val is None:
                 return self.color["b"]
             else:
                 self.color["b"] = val % 255
 
         def alpha(self, val: float = None) -> float:
+            """ Sets or gets the alpha value. """
             if val is None:
                 return self.color["a"]
             else:
                 self.color["a"] = val % 255
 
         def get(self) -> dict[str, float]:
+            """ Returns the color object with all values. """
             return self.color
 
     @staticmethod
     def color(*args: float) -> Color:
+        """ Creates a new color object. """
         return Py5.Color(args)
 
     @staticmethod
-    def fill_array(arr: list, value: any) -> list:
+    def fill_array(arr: list, value: any = None) -> list:
+        """ Fills an array with the given values. """
         return Arrays.fill(arr, value)
 
 
 class Py5FileType(Enum):
+
+    """ The file extensions currently compatible with *Py5*. """
+
     CONFIGURATION_SETTINGS = "ini"
     TEXT = "txt"
     XML = "xml"
+    EXCEL_SPREADSHEET = "csv"
 
 
 class Py5FileReader:
+
+    """ Allows the user to read and parse files. """
+
     @staticmethod
     def parse(file: str, ext: Py5FileType = Py5FileType.TEXT) -> \
             Union[dict[str, Union[str, dict]], list[Union[str, dict]]]:
         """
+        Parses code files such as xml and ini to a dictionary.
+        :raises FileNotFoundError If the file is not existing.
         :param file: The path to the file.
         :param ext: The file extension.
-        :return: The contents
+        :return: The contents.
         """
         if not path.isfile(file):
             raise FileNotFoundError(f"No such file, open '{file}'")
@@ -486,17 +511,40 @@ class Py5FileReader:
 
     @staticmethod
     def read(file: str, line: Optional[int] = None,
-             delimiter: str = "\n") -> Union[list[str], str]:
-        data: list[str] = []
-        if not path.isfile(file):
-            raise FileNotFoundError(f"No such file, open '{file}'")
-        file = open(file, "r")
-        current_line = 0
-        for ln in file:
-            current_line += 1
-            data.append(ln.strip(delimiter))
-            if line is not None:
-                if current_line == line:
-                    return ln
-        file.close()
-        return data
+             delimiter: str = "\n", ext: Py5FileType = Py5FileType.TEXT) -> Union[list[str], str]:
+
+        """
+        Reads the specified file and returns its content in a list form.
+        :raises FileNotFoundError If the specified file isn't existing.
+        :param file: The path to the file.
+        :param line: Up to the specified line, **works only for text-type files**.
+        :param delimiter: Removes the end of the line if not specified, **works only for text-type files**.
+        :param ext: The file extension.
+        :return: The file contents.
+        """
+
+        def read_csv(csv: str) -> list[str]:
+            l: list[str] = []
+            csv = open(csv)
+            r = xls.reader(csv)
+            for csv_ln in r:
+                l.append(str(csv_ln))
+            csv.close()
+            return l
+
+        if ext != Py5FileType.EXCEL_SPREADSHEET:
+            data: list[str] = []
+            if not path.isfile(file):
+                raise FileNotFoundError(f"No such file, open '{file}'")
+            file = open(file, "r")
+            current_line = 0
+            for ln in file:
+                current_line += 1
+                data.append(ln.strip(delimiter))
+                if line is not None:
+                    if current_line == line:
+                        return ln
+            file.close()
+            return data
+        elif ext == Py5FileType.EXCEL_SPREADSHEET:
+            return read_csv(file)
