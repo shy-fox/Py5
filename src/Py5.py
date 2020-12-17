@@ -12,7 +12,7 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *v0.2b*"""
 
     T = TypeVar('T', object, int, float, str)
 
@@ -42,13 +42,15 @@ class Py5:
     mode = MODE.RADIANS
 
     # Error classes
-    class InternalError(Exception):
-        pass
+    class Py5InternalError(Exception):
+        def __init__(self, message: str):
+            super().__init__(f"Py5.Internals🌸 {message}")
 
-    class ValueError(Exception):
-        pass
+    class Py5ValueError(Exception):
+        def __init__(self, message: str):
+            super().__init__(f"Value🌸 {message}")
 
-    class ModeError(Exception):
+    class Py5ModeError(Exception):
         def __init__(self, message: str):
             super().__init__(f"⩕ {message}")
 
@@ -56,9 +58,17 @@ class Py5:
         def __init__(self, message: str):
             super().__init__(f"Py5🌸 {message}")
 
-    class FriendlyError(Exception):
+    class Py5FriendlyError(Exception):
         def __init__(self, message: str):
             super().__init__(f"🌸 {message}")
+
+    class Py5FileError(Exception):
+        def __init__(self, message: str):
+            super().__init__(f"File🌸 {message}")
+
+    class Py5FileExtensionMismatchError(Exception):
+        def __init__(self, message: str):
+            super().__init__(f"Extension🌸 {message}")
 
     @staticmethod
     def deg(rad: float) -> float:
@@ -180,7 +190,7 @@ class Py5:
         elif len(args) == 6:
             return Py5.__hypot3d__(args[3] - args[0], args[4] - args[1], args[5] - args[2])
         else:
-            raise Py5.FriendlyError(f"Has to be of either length 4 or 6, got {len(args)} instead")
+            raise Py5.Py5FriendlyError(f"Has to be of either length 4 or 6, got {len(args)} instead")
 
     @staticmethod
     def exp(n: float) -> float:
@@ -454,6 +464,14 @@ class Py5:
         """ Fills an array with the given values. """
         return Arrays.fill(arr, value)
 
+    @staticmethod
+    def includes(array: list, value: any) -> bool:
+        """ Checks if a list contains an element. """
+        for elem in array:
+            if elem == value:
+                return True
+        return False
+
 
 class Py5FileType(Enum):
 
@@ -474,13 +492,13 @@ class Py5FileReader:
             Union[dict[str, Union[str, dict]], list[Union[str, dict]]]:
         """
         Parses code files such as xml and ini to a dictionary.
-        :raises FileNotFoundError If the file is not existing.
+        :raises Py5FileError If the file is not existing.
         :param file: The path to the file.
         :param ext: The file extension.
         :return: The contents.
         """
         if not path.isfile(file):
-            raise FileNotFoundError(f"No such file, open '{file}'")
+            raise Py5.Py5FileError(f"No such file, open '{file}'")
         file = open(file, "r")
         search = re.search
         regex_match = re.match
@@ -511,11 +529,13 @@ class Py5FileReader:
 
     @staticmethod
     def read(file: str, line: Optional[int] = None,
-             delimiter: str = "\n", ext: Py5FileType = Py5FileType.TEXT) -> Union[list[str], str]:
+             delimiter: str = "\n", ext: Union[str, Py5FileType] = Py5FileType.TEXT) -> Union[list[str], str]:
 
         """
         Reads the specified file and returns its content in a list form.
-        :raises FileNotFoundError If the specified file isn't existing.
+        :raises Py5FileError If the specified file isn't existing.
+        :raises Py5Error If the line index is beyond the maximum lines of the file.
+        :raises Py5FileExtensionMismatchError If the given extension isn't compatible with the current version of Py5.
         :param file: The path to the file.
         :param line: Reads only specified line, **works only for text-type files**.
         :param delimiter: Removes the end of the line if not specified, **works only for text-type files**.
@@ -532,10 +552,11 @@ class Py5FileReader:
             csv.close()
             return l
 
-        if ext != Py5FileType.EXCEL_SPREADSHEET:
+        if ext != Py5FileType.EXCEL_SPREADSHEET and \
+                Py5.includes(list(map(lambda x: x.value, Py5FileType.__members__.values())), ext):
             data: list[str] = []
             if not path.isfile(file):
-                raise FileNotFoundError(f"No such file, open '{file}'")
+                raise Py5.Py5FileError(f"No such file, open '{file}'")
             file = open(file, "r")
             current_line = 0
             for ln in file:
@@ -544,7 +565,13 @@ class Py5FileReader:
                 if line is not None:
                     if current_line == line:
                         return ln
+            if line is not None:
+                if current_line < line:
+                    raise Py5.Py5Error(f"Line number out of range.\nmaximum={current_line}; given={line}")
             file.close()
             return data
         elif ext == Py5FileType.EXCEL_SPREADSHEET:
             return read_csv(file)
+        else:
+            error_msg = str(list(map(lambda x: x.name, Py5FileType.__members__.values()))).strip('[]')
+            raise Py5.Py5FileExtensionMismatchError(f"Expected one of {error_msg}, got '{ext}' instead.")
