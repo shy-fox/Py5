@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.2-snapshot-b* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.3* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.2-snapshot-b"
+    __version__ = "0.2.3"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -562,7 +562,7 @@ class Py5:
                     if not Py5.includes(py5filereader_available, check):
                         if not Py5.includes(py5vector_available, check):
                             if not Py5.includes(arrays_available, check):
-                                raise Py5.Py5InternalError(f"Method '{check}' not included.")
+                                raise Py5.Py5InternalError(f"Method '{check}' is not defined.")
                             print(f"Method '{check}' is part of 'Arrays'")
                             help(getattr(Arrays, check))
                             return
@@ -587,6 +587,7 @@ class Py5FileType(Enum):
     TEXT = "txt"
     XML = "xml"
     EXCEL_SPREADSHEET = "csv"
+    MARKDOWN = "md"
 
 
 class Py5FileReader:
@@ -608,7 +609,7 @@ class Py5FileReader:
         file = open(file, "r")
         search = re.search
         regex_match = re.match
-        if ext.value == "ini":
+        if ext == Py5FileType.CONFIGURATION_SETTINGS:
             value = {}
             section = None
             for line in file:
@@ -623,15 +624,27 @@ class Py5FileReader:
                     value[match[1]] = {}
                     section = match[1]
             return value
-        elif ext.value == "txt":
+        elif ext == Py5FileType.TEXT:
             value = []
             for line in file:
                 value.append(line.replace("\n", ""))
             return value
-        elif ext.value == "xml":
+        elif ext == Py5FileType.XML:
             values = {}
             # Work in progress, adding in v0.5a
             return values
+        elif ext == Py5FileType.MARKDOWN:
+            values = {}
+            compare = {
+                "h1": r"(?P<h1>^#)",
+                "h2": r"(?P<h2>^#{2})",
+                "h3": r"(?P<h3>^#{3})",
+                "h4": r"(?P<h4>^#{4})",
+                "i": r"[\*_]([^\*_]+)[\*_]$",
+                "b": r"[\*_]{2}([^\*_]+)[\*_]{2}$",
+                "strikethrough": r"~{2}([^~]+)~{2}$",
+                "code": r"`([^`]+)`$"
+            }
 
     @staticmethod
     def read(file: str, line: Optional[int] = None,
@@ -658,7 +671,23 @@ class Py5FileReader:
             csv.close()
             return l
 
-        if ext != Py5FileType.EXCEL_SPREADSHEET and \
+        def read_xml(xml: str) -> list[str]:
+            l: list[str] = []
+            xml = open(xml)
+            for xml_ln in xml:
+                l.append(re.search(r"<([^>]+)>$", xml_ln)[0])
+            xml.close()
+            return l
+
+        def read_md(md: str) -> list[str]:
+            l: list[str] = []
+            md = open(md)
+            for md_ln in md:
+                l.append(re.sub(r"^\s+", "", md_ln).strip("\n"))
+            md.close()
+            return l
+
+        if ext == Py5FileType.TEXT and \
                 Py5.includes(list(map(lambda x: x.value, Py5FileType.__members__.values())), ext):
             data: list[str] = []
             if not path.isfile(file):
@@ -667,7 +696,7 @@ class Py5FileReader:
             current_line = 0
             for ln in file:
                 current_line += 1
-                data.append(ln.strip(delimiter))
+                data.append(ln.strip(delimiter).replace("\t", ""))
                 if line is not None:
                     if current_line == line:
                         return ln
@@ -678,6 +707,10 @@ class Py5FileReader:
             return data
         elif ext == Py5FileType.EXCEL_SPREADSHEET:
             return read_csv(file)
+        elif ext == Py5FileType.XML:
+            return read_xml(file)
+        elif ext == Py5FileType.MARKDOWN:
+            return read_md(file)
         else:
             error_msg = str(list(map(lambda x: x.name, Py5FileType.__members__.values()))).strip('[]')
             raise Py5.Py5FileExtensionMismatchError(f"Expected one of {error_msg}, got '{ext}' instead.")
