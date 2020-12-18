@@ -12,7 +12,11 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *v0.2b*"""
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.2-snapshot* """
+
+    __author__ = "Shiromi"
+    __version__ = "0.2.2-snapshot"
+    __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
 
@@ -474,6 +478,107 @@ class Py5:
                 return True
         return False
 
+    @staticmethod
+    def available_methods(check: str = None) -> None:
+        """ Prints the information for a function of this or one of it's subclasses. """
+        py5_available = [
+            "deg",
+            "rad",
+            "angle_mode",
+            "cos",
+            "sin",
+            "tan",
+            "asin",
+            "acos",
+            "atan",
+            "sinh",
+            "cosh",
+            "tanh",
+            "asinh",
+            "acosh",
+            "atanh",
+            "atan2",
+            "abs",
+            "ceil",
+            "floor",
+            "constrain",
+            "dist",
+            "exp",
+            "lerp",
+            "log",
+            "mag",
+            "fact",
+            "map",
+            "min",
+            "nf",
+            "num",
+            "random",
+            "choice",
+            "noise",
+            "create_vector",
+            "color",
+            "fill_array",
+            "includes",
+            "available_methods"
+        ]
+        py5color_available = [
+            "red",
+            "green",
+            "blue",
+            "alpha",
+            "get"
+        ]
+        py5filereader_available = [
+            "parse",
+            "read"
+        ]
+        py5vector_available = [
+            "add",
+            "sub",
+            "mult",
+            "div",
+            "scale",
+            "get"
+        ]
+        arrays_available = [
+            "fill"
+        ]
+
+        if check is None:
+            py5_available_str = "\n\t".join(py5_available)
+            py5filereader_available_str = "\n\t".join(py5filereader_available)
+            py5color_available_str = "\n\t".join(py5color_available)
+            py5vector_available_str = "\n\t".join(py5vector_available)
+            arrays_available_str = "\n\t".join(arrays_available)
+
+            print(f"Available methods for 'Py5':\n\t{py5_available_str}\n"
+                  f"Available methods for 'Py5FileReader':\n\t{py5filereader_available_str}\n"
+                  f"Available methods for 'Py5.Color':\n\t{py5color_available_str}\n"
+                  f"Available methods for 'Py5Vector':\n\t{py5vector_available_str}\n"
+                  f"Available methods for 'Arrays':\n\t{arrays_available_str}\n")
+        else:
+            if not Py5.includes(py5_available, check):
+                if not Py5.includes(py5color_available, check):
+                    if not Py5.includes(py5filereader_available, check):
+                        if not Py5.includes(py5vector_available, check):
+                            if not Py5.includes(arrays_available, check):
+                                print(f"Method '{check}' not included.")
+                                return
+                            print(f"Method '{check}' is part of 'Arrays'")
+                            help(getattr(Arrays, check))
+                            return
+                        print(f"Method '{check}' is part of 'Py5Vector'")
+                        help(getattr(Py5Vector, check))
+                        return
+                    print(f"Method '{check}' is part of 'Py5FileReader'")
+                    help(getattr(Py5FileReader, check))
+                    return
+                print(f"Method '{check}' is part of 'Py5.Color'")
+                help(getattr(Py5.Color, check))
+                return
+            print(f"Method '{check}' is part of 'Py5'")
+            help(getattr(Py5, check))
+
 
 class Py5FileType(Enum):
 
@@ -526,7 +631,7 @@ class Py5FileReader:
             return value
         elif ext.value == "xml":
             values = {}
-
+            # Work in progress, adding in v0.5a
             return values
 
     @staticmethod
