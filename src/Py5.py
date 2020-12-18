@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.3* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.4* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.3"
+    __version__ = "0.2.4"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -687,30 +687,41 @@ class Py5FileReader:
             md.close()
             return l
 
-        if ext == Py5FileType.TEXT and \
-                Py5.includes(list(map(lambda x: x.value, Py5FileType.__members__.values())), ext):
+        def read_txt(txt: str, ln: Optional[int] = None, limiter: str = "\n") -> Union[str,list[str]]:
             data: list[str] = []
-            if not path.isfile(file):
-                raise Py5.Py5FileError(f"No such file, open '{file}'")
-            file = open(file, "r")
+            f = open(txt, "r")
             current_line = 0
-            for ln in file:
+            for f_ln in f:
                 current_line += 1
-                data.append(ln.strip(delimiter).replace("\t", ""))
-                if line is not None:
-                    if current_line == line:
-                        return ln
-            if line is not None:
-                if current_line < line:
-                    raise Py5.Py5Error(f"Line number out of range.\nmaximum={current_line}; given={line}")
-            file.close()
+                data.append(f_ln.strip(limiter).replace("\t", ""))
+                if ln is not None:
+                    if current_line == ln:
+                        return f_ln
+            if ln is not None:
+                if current_line < ln:
+                    raise Py5.Py5Error(f"Line number out of range.\nmaximum={current_line}; given={ln}")
+            f.close()
             return data
-        elif ext == Py5FileType.EXCEL_SPREADSHEET:
+
+        if not path.isfile(file):
+            raise Py5.Py5FileError(f"No such file, open '{file}'")
+
+        extension: str
+        if type(ext) is str:
+            extension = ext
+        else:
+            extension = ext.value
+
+        extension = extension.lower()
+
+        if extension == 'txt':
+            return read_txt(file, line, delimiter)
+        elif extension == 'csv':
             return read_csv(file)
-        elif ext == Py5FileType.XML:
+        elif extension == 'xml':
             return read_xml(file)
-        elif ext == Py5FileType.MARKDOWN:
+        elif extension == 'md':
             return read_md(file)
         else:
             error_msg = str(list(map(lambda x: x.name, Py5FileType.__members__.values()))).strip('[]')
-            raise Py5.Py5FileExtensionMismatchError(f"Expected one of {error_msg}, got '{ext}' instead.")
+            raise Py5.Py5FileExtensionMismatchError(f"Expected one of {error_msg}, got '{extension}' instead.")
