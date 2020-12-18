@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.2-snapshot* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.2-snapshot-b* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.2-snapshot"
+    __version__ = "0.2.2-snapshot-b"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -562,8 +562,7 @@ class Py5:
                     if not Py5.includes(py5filereader_available, check):
                         if not Py5.includes(py5vector_available, check):
                             if not Py5.includes(arrays_available, check):
-                                print(f"Method '{check}' not included.")
-                                return
+                                raise Py5.Py5InternalError(f"Method '{check}' not included.")
                             print(f"Method '{check}' is part of 'Arrays'")
                             help(getattr(Arrays, check))
                             return
