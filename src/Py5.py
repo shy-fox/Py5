@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.4* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.4-b* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.4"
+    __version__ = "0.2.4-b"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -689,7 +689,7 @@ class Py5FileReader:
 
         def read_txt(txt: str, ln: Optional[int] = None, limiter: str = "\n") -> Union[str,list[str]]:
             data: list[str] = []
-            f = open(txt, "r")
+            f = open(txt)
             current_line = 0
             for f_ln in f:
                 current_line += 1
@@ -702,6 +702,14 @@ class Py5FileReader:
                     raise Py5.Py5Error(f"Line number out of range.\nmaximum={current_line}; given={ln}")
             f.close()
             return data
+
+        def read_ini(ini: str) -> list[str]:
+            l: list[str] = []
+            ini = open(ini)
+            for ini_ln in ini:
+                l.append(ini_ln.strip("\n"))
+            ini.close()
+            return l
 
         if not path.isfile(file):
             raise Py5.Py5FileError(f"No such file, open '{file}'")
@@ -722,6 +730,8 @@ class Py5FileReader:
             return read_xml(file)
         elif extension == 'md':
             return read_md(file)
+        elif extension == 'ini':
+            return read_ini(file)
         else:
             error_msg = str(list(map(lambda x: x.name, Py5FileType.__members__.values()))).strip('[]')
             raise Py5.Py5FileExtensionMismatchError(f"Expected one of {error_msg}, got '{extension}' instead.")
