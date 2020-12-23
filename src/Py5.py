@@ -5,6 +5,7 @@ from enum import Enum
 from os import path
 from typing import TypeVar, Union, Optional
 import csv as xls
+from datetime import datetime as dt
 
 from Arrays import Arrays
 from Py5Vector import Py5Vector
@@ -12,10 +13,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.4-b* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-a* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.4-b"
+    __version__ = "0.2.5-a"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -408,6 +409,26 @@ class Py5:
         """ Creates a Vector with the given values. """
         return Py5Vector(x, y, z, w)
 
+    class Debug(object):
+        def __init__(self, func):
+            self.func = func
+
+        def __log_call__(self, *args, **kwargs) -> None:
+            _now = dt.now()
+            _hour: str = _now.hour if _now.hour > 10 else f"0{_now.hour}"
+            _minute: str = _now.minute if _now.minute > 10 else f"0{_now.minute}"
+            _second: str = _now.second if _now.second > 10 else f"0{_now.second}"
+
+            print(f"{_hour}:{_minute}:{_second}: Executed: {self.func.__name__}"
+                  f"\n\tArguments: {args}"
+                  f"\n\tNamed Arguments: {kwargs}")
+
+    @staticmethod
+    def debug(func) -> any:
+        """ Usage as a decorator to get the function name and parameters as debug info\n
+        ``@Py5.debug def method_name(*args): pass`` """
+        return Py5.Debug(func).__log_call__
+
     class Color(object):
         """ A color object which might be useful for *pygame*. """
         color: dict[str, float]
@@ -428,33 +449,26 @@ class Py5:
             else:
                 raise Py5.Py5Error(f"Expected between 1 or 4 arguments. Got {len(args)} instead")
 
-        def red(self, val: float = None) -> float:
-            """ Sets or gets the red value. """
-            if val is None:
-                return self.color["r"]
-            else:
-                self.color["r"] = val % 255
+        # readonly types
+        @property
+        def red(self) -> float:
+            """ Gets the red value. """
+            return self.color["r"]
 
-        def green(self, val: float = None) -> float:
-            """ Sets or gets the green value. """
-            if val is None:
-                return self.color["g"]
-            else:
-                self.color["g"] = val % 255
+        @property
+        def green(self) -> float:
+            """ Gets the green value. """
+            return self.color["g"]
 
-        def blue(self, val: float = None) -> float:
-            """ Sets or gets the blue value. """
-            if val is None:
-                return self.color["b"]
-            else:
-                self.color["b"] = val % 255
+        @property
+        def blue(self) -> float:
+            """ Gets the blue value. """
+            return self.color["b"]
 
-        def alpha(self, val: float = None) -> float:
-            """ Sets or gets the alpha value. """
-            if val is None:
-                return self.color["a"]
-            else:
-                self.color["a"] = val % 255
+        @property
+        def alpha(self) -> float:
+            """ Gets the alpha value. """
+            return self.color["a"]
 
         def get(self) -> dict[str, float]:
             """ Returns the color object with all values. """
@@ -687,7 +701,7 @@ class Py5FileReader:
             md.close()
             return l
 
-        def read_txt(txt: str, ln: Optional[int] = None, limiter: str = "\n") -> Union[str,list[str]]:
+        def read_txt(txt: str, ln: Optional[int] = None, limiter: str = "\n") -> Union[str, list[str]]:
             data: list[str] = []
             f = open(txt)
             current_line = 0
