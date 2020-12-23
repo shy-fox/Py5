@@ -13,10 +13,10 @@ from Py5Vector import Py5Vector
 
 class Py5:
 
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-a* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-b* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.5-a"
+    __version__ = "0.2.5-b"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -413,7 +413,7 @@ class Py5:
         def __init__(self, func):
             self.func = func
 
-        def __log_call__(self, *args, **kwargs) -> None:
+        def __log_call__(self, *args, **kwargs) -> any:
             _now = dt.now()
             _hour: str = _now.hour if _now.hour > 10 else f"0{_now.hour}"
             _minute: str = _now.minute if _now.minute > 10 else f"0{_now.minute}"
@@ -422,6 +422,8 @@ class Py5:
             print(f"{_hour}:{_minute}:{_second}: Executed: {self.func.__name__}"
                   f"\n\tArguments: {args}"
                   f"\n\tNamed Arguments: {kwargs}")
+
+            return self.func(*args, **kwargs)
 
     @staticmethod
     def debug(func) -> any:
