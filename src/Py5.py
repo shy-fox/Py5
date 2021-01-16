@@ -1,22 +1,21 @@
+import csv as xls
 import math
 import random
 import re
+from datetime import datetime as dt
 from enum import Enum
 from os import path
 from typing import TypeVar, Union, Optional
-import csv as xls
-from datetime import datetime as dt
 
 from Arrays import Arrays
 from Py5Vector import Py5Vector
 
 
 class Py5:
-
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-b* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-c* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.5-b"
+    __version__ = "0.2.5-c"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -37,6 +36,16 @@ class Py5:
     PI = math.pi
     TWO_PI = 2 * PI
     HALF_PI = 0.5 * PI
+    TAU = TWO_PI
+
+    # math functions
+    @staticmethod
+    def half(x: float) -> float:
+        return 0.5 * x
+
+    @staticmethod
+    def double(x: float) -> float:
+        return 2 * x
 
     # used for changing modes
     class MODE(Enum):
@@ -409,6 +418,27 @@ class Py5:
         """ Creates a Vector with the given values. """
         return Py5Vector(x, y, z, w)
 
+    @staticmethod
+    def promise(func, on_success=None, on_error=None, exceptions: tuple[Exception] = BaseException) -> any:
+        def default_success() -> None:
+            print("Success!")
+
+        def default_error() -> None:
+            print("Error!")
+
+        try:
+            x = func()
+            if on_success is not None:
+                on_success()
+            else:
+                default_success()
+            return x
+        except exceptions:
+            if on_error is not None:
+                on_error()
+            else:
+                default_error()
+
     class Debug(object):
         def __init__(self, func):
             self.func = func
@@ -435,21 +465,88 @@ class Py5:
         """ A color object which might be useful for *pygame*. """
         color: dict[str, float]
 
-        def __init__(self, args: tuple[float, ...]):
+        C = TypeVar("C", str, tuple[float, ...], tuple[int, ...])
+
+        def __init__(self, args: C):
             """ Creates a new color object with 4 values: ``r,g,b,a``. """
-            if len(args) == 1:
-                color_val = args[0] % 255
-                self.color = {"r": color_val, "g": color_val, "b": color_val, "a": 255}
-            elif len(args) == 2:
-                color_val = args[0] % 255
-                alpha = args[1] % 255
-                self.color = {"r": color_val, "g": color_val, "b": color_val, "a": alpha}
-            elif len(args) == 3:
-                self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": 255}
-            elif len(args) == 4:
-                self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": args[3] % 255}
-            else:
-                raise Py5.Py5Error(f"Expected between 1 or 4 arguments. Got {len(args)} instead")
+
+            valid: list[str] = [
+                "red",
+                "green",
+                "blue",
+                "violet",
+                "pink",
+                "purple",
+                "white",
+                "black",
+                "gray",
+                "grey",
+                "orange",
+                "cyan",
+                "navy",
+                "gold",
+                "silver",
+                "beige",
+                "brown"
+            ]
+
+            if type(args) is tuple[int] or type(args) is tuple[float]:
+                if len(args) == 1:
+                    color_val = args[0] % 255
+                    self.color = {"r": color_val, "g": color_val, "b": color_val, "a": 255}
+                elif len(args) == 2:
+                    color_val = args[0] % 255
+                    alpha = args[1] % 255
+                    self.color = {"r": color_val, "g": color_val, "b": color_val, "a": alpha}
+                elif len(args) == 3:
+                    self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": 255}
+                elif len(args) == 4:
+                    self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": args[3] % 255}
+                else:
+                    raise Py5.Py5Error(f"Expected between 1 or 4 arguments. Got {len(args)} instead")
+            elif type(args) is str:
+                if args.startswith('#'):
+                    args = str(args[1:])
+                    if len(args) == 3:
+                        r = args[0]
+                        g = args[1]
+                        b = args[2]
+
+                        r += r
+                        g += g
+                        b += b
+
+                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": 255}
+                    elif len(args) == 4:
+                        r = args[0]
+                        g = args[1]
+                        b = args[2]
+                        a = args[3]
+
+                        r += r
+                        g += g
+                        b += b
+                        a += a
+
+                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": int(a, 16)}
+                    elif len(args) == 6:
+                        r = args[0:1]
+                        g = args[2:3]
+                        b = args[4:5]
+
+                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": 255}
+                    elif len(args) == 8:
+                        r = args[0:1]
+                        g = args[2:3]
+                        b = args[4:5]
+                        a = args[6:7]
+
+                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": int(a, 16)}
+                elif Py5.includes(valid, args):
+                    if args == "red":
+                        self.color = {"r": 255, "g": 0, "b": 0, "a": 255}
+                    elif args == "green":
+                        self.color = {"r": 0, "g": 255, "b": 0, "a": 255}
 
         # readonly types
         @property
@@ -479,7 +576,7 @@ class Py5:
     @staticmethod
     def color(*args: float) -> Color:
         """ Creates a new color object. """
-        return Py5.Color(args)
+        return Py5.Color(*args)
 
     @staticmethod
     def fill_array(arr: list, value: any = None) -> list:
@@ -596,7 +693,6 @@ class Py5:
 
 
 class Py5FileType(Enum):
-
     """ The file extensions currently compatible with *Py5*. """
 
     CONFIGURATION_SETTINGS = "ini"
@@ -607,7 +703,6 @@ class Py5FileType(Enum):
 
 
 class Py5FileReader:
-
     """ Allows the user to read and parse files. """
 
     @staticmethod
