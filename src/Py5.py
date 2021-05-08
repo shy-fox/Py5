@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 
 class Py5:
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-c* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-d-unstable* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.5-c"
+    __version__ = "0.2.5-d-unstable"
     __copyright__ = "Copyright (c) 2020 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -592,6 +592,27 @@ class Py5:
         return False
 
     @staticmethod
+    def parse_int(x: str) -> int:
+        if not x.isdigit():
+            raise Py5.Py5InternalError("Expected only digits, got alphanumerical string instead")
+        return int(x)
+
+    @staticmethod
+    def parse_bool(x: Union[int, str]) -> bool:
+        valid = [
+            'true',
+            '1',
+            'false',
+            '0'
+        ]
+
+        x = str(x) if x is int else x.lower()
+        if x not in valid:
+            raise Py5.Py5InternalError(f"Expected boolean value or 1 or 0, got {x}")
+
+        return True if x.lower() == 'true' or x == '1' else False
+
+    @staticmethod
     def available_methods(check: str = None) -> None:
         """ Prints the information for a function of this or one of it's subclasses. """
         py5_available = [
@@ -786,7 +807,7 @@ class Py5FileReader:
             l: list[str] = []
             xml = open(xml)
             for xml_ln in xml:
-                l.append(re.search(r"<([^>]+)>$", xml_ln)[0])
+                l.append(re.search(r"<([^>]+)>", xml_ln)[0])
             xml.close()
             return l
 
