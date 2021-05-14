@@ -96,7 +96,7 @@ class Py5:
 
     @staticmethod
     def angle_mode(mode: MODE) -> None:
-        """ Set mode to radians or degrees. """
+        """ Set mode to radians or degrees. Default is MODE.RADIANS"""
         if mode == Py5.mode:
             raise Py5.Py5ModeError(f"Mode already set to {mode}")
         Py5.mode = mode
@@ -104,67 +104,67 @@ class Py5:
     @staticmethod
     def cos(n: float) -> float:
         """ Returns the cosine of the given value 'n' """
-        return math.cos(n) if not Py5.MODE else Py5.deg(math.cos(n))
+        return math.cos(n) if not Py5.mode else math.cos(Py5.rad(n))
 
     @staticmethod
     def sin(n: float) -> float:
         """ Returns the sine of the given value 'n'. """
-        return math.sin(n) if not Py5.MODE else Py5.deg(math.sin(n))
+        return math.sin(n) if not Py5.mode else math.sin(Py5.rad(n))
 
     @staticmethod
     def tan(n: float) -> float:
         """ Returns the tangent of the given value 'n'. """
-        return math.tan(n) if not Py5.MODE else Py5.deg(math.tan(n))
+        return math.tan(n) if not Py5.mode else math.tan(Py5.rad(n))
 
     @staticmethod
     def asin(n: float) -> float:
         """ Returns the arc sine of 'n'. """
-        return math.asin(n) if not Py5.MODE else Py5.deg(math.asin(n))
+        return math.asin(n) if not Py5.mode else math.asin(Py5.rad(n))
 
     @staticmethod
     def acos(n: float) -> float:
         """ Returns the arc cosine of 'n'. """
-        return math.acos(n) if not Py5.MODE else Py5.deg(math.acos(n))
+        return math.acos(n) if not Py5.mode else math.acos(Py5.rad(n))
 
     @staticmethod
     def atan(n: float) -> float:
         """ Returns the arc tangent of 'n'. """
-        return math.atan(n) if not Py5.MODE else Py5.deg(math.atan(n))
+        return math.atan(n) if not Py5.mode else math.atan(Py5.rad(n))
 
     @staticmethod
     def sinh(n: float) -> float:
         """ Returns the hyperbolic sine of 'n'. """
-        return math.sinh(n) if not Py5.MODE else Py5.deg(math.sinh(n))
+        return math.sinh(n) if not Py5.mode else math.sinh(Py5.rad(n))
 
     @staticmethod
     def cosh(n: float) -> float:
         """ Returns the hyperbolic cosine of 'n'. """
-        return math.cosh(n) if not Py5.MODE else Py5.deg(math.cosh(n))
+        return math.cosh(n) if not Py5.mode else math.cosh(Py5.rad(n))
 
     @staticmethod
     def tanh(n: float) -> float:
         """ Returns the hyperbolic tangent of 'n'. """
-        return math.tanh(n) if not Py5.MODE else Py5.deg(math.tanh(n))
+        return math.tanh(n) if not Py5.mode else math.tanh(Py5.rad(n))
 
     @staticmethod
     def asinh(n: float) -> float:
         """ Returns the inverse hyperbolic sine of 'n'. """
-        return math.asinh(n) if not Py5.MODE else Py5.deg(math.asinh(n))
+        return math.asinh(n) if not Py5.mode else math.asinh(Py5.rad(n))
 
     @staticmethod
     def acosh(n: float) -> float:
         """ Returns the inverse hyperbolic cosine of 'n'. """
-        return math.acosh(n) if not Py5.MODE else Py5.deg(math.acosh(n))
+        return math.acosh(n) if not Py5.mode else math.acosh(Py5.rad(n))
 
     @staticmethod
     def atanh(n: float) -> float:
         """ Returns the inverse hyperbolic tangent of 'n'. """
-        return math.atanh(n) if not Py5.MODE else Py5.deg(math.atanh(n))
+        return math.atanh(n) if not Py5.mode else math.atanh(Py5.rad(n))
 
     @staticmethod
     def atan2(x: float, y: float) -> float:
         """ Returns the arc tangent of x/y, """
-        return math.atan2(x, y) if not Py5.MODE else Py5.deg(math.atan2(x, y))
+        return math.atan2(x, y) if not Py5.mode else math.atan2(Py5.rad(x), Py5.rad(y))
 
     @staticmethod
     def __scaled_cos__(n: float) -> float:
