@@ -186,11 +186,6 @@ class Py5:
         return x**n
 
     @staticmethod
-    def npow(n: Union[float, int]) -> Union[float, int]:
-        """ Returns the natural exponent of n. """
-        return Py5.pow(Py5.E, n)
-
-    @staticmethod
     def sqrt(x: Union[float, int]) -> Union[float, str]:
         """ Returns the square root of x. """
         if type(x) is int:
@@ -691,6 +686,7 @@ class Py5:
             "atanh",
             "atan2",
             "sqrt",
+            "pow",
             "root",
             "abs",
             "ceil",
