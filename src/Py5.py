@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 
 class Py5:
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-d-unstable* """
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.6-b*; Date: 09/21/21"""
 
     __author__ = "Shiromi"
-    __version__ = "0.2.6-a"
+    __version__ = "0.2.6-b"
     __copyright__ = "Copyright (c) 2020-2021 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -34,9 +34,8 @@ class Py5:
     # static variables
     E = math.e
     PI = math.pi
-    TWO_PI = 2 * PI
+    TWO_PI = TAU = 2 * PI
     HALF_PI = 0.5 * PI
-    TAU = TWO_PI
 
     # math functions
     @staticmethod
@@ -98,10 +97,6 @@ class Py5:
     def rad(deg: float) -> float:
         """ Converts *degrees* to *radians*. """
         return deg * Py5.PI / 180
-    
-    @staticmethod
-    def abs(x: Union[float, int]) -> Union[float, int]:
-        return x if x >= 0 else -1 * x
 
     @staticmethod
     def angle_mode(mode: MODE) -> None:
@@ -191,6 +186,11 @@ class Py5:
         return x**n
 
     @staticmethod
+    def npow(n: Union[float, int]) -> Union[float, int]:
+        """ Returns the natural exponent of n. """
+        return Py5.pow(Py5.E, n)
+
+    @staticmethod
     def sqrt(x: Union[float, int]) -> Union[float, str]:
         """ Returns the square root of x. """
         if type(x) is int:
@@ -198,7 +198,7 @@ class Py5:
         if not Py5.cx:
             return math.sqrt(x)
         else:
-            res = float(math.sqrt(Py5.abs(x)))
+            res = float(math.sqrt(abs(x)))
             if x < 0:
                 res = str(res) + ' * i'
             return res
@@ -217,7 +217,7 @@ class Py5:
             if not Py5.cx:
                 return res
             else:
-                return str(float(Py5.pow(Py5.abs(x), float(1/n)))) + " * i"
+                return str(float(Py5.pow(abs(x), float(1/n)))) + " * i"
 
     @staticmethod
     def __scaled_cos__(n: float) -> float:
@@ -226,7 +226,7 @@ class Py5:
     @staticmethod
     def abs(n: float) -> float:
         """ Returns the absolute value of 'n'. """
-        return n if n <= 0 else -n
+        return -n if n < 0 else n
 
     @staticmethod
     def ceil(n: float) -> int:
@@ -690,6 +690,8 @@ class Py5:
             "acosh",
             "atanh",
             "atan2",
+            "sqrt",
+            "root",
             "abs",
             "ceil",
             "floor",
