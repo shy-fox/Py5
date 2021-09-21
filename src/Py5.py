@@ -15,8 +15,8 @@ class Py5:
     """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.5-d-unstable* """
 
     __author__ = "Shiromi"
-    __version__ = "0.2.5-d-unstable"
-    __copyright__ = "Copyright (c) 2020 Shiromi"
+    __version__ = "0.2.6-a"
+    __copyright__ = "Copyright (c) 2020-2021 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
 
@@ -52,8 +52,13 @@ class Py5:
         DEGREES = True
         RADIANS = False
 
-    # default mode for angles
+    class COMPLEX(Enum):
+        COMPLEX = True
+        SIMPLE = False
+
+    # default vars
     mode = MODE.RADIANS
+    cx = COMPLEX.SIMPLE
 
     # Error classes
     class Py5InternalError(Exception):
@@ -93,6 +98,10 @@ class Py5:
     def rad(deg: float) -> float:
         """ Converts *degrees* to *radians*. """
         return deg * Py5.PI / 180
+    
+    @staticmethod
+    def abs(x: Union[float, int]) -> Union[float, int]:
+        return x if x >= 0 else -1 * x
 
     @staticmethod
     def angle_mode(mode: MODE) -> None:
@@ -100,6 +109,13 @@ class Py5:
         if mode == Py5.mode:
             raise Py5.Py5ModeError(f"Mode already set to {mode}")
         Py5.mode = mode
+
+    @staticmethod
+    def complex_mode(cx: COMPLEX) -> None:
+        """ Changes between complex and simple mode, default is *COMPLEX.DISABLED (Simple)*"""
+        if cx == Py5.cx:
+            raise Py5.Py5ModeError(f"Mode already set to {cx}")
+        Py5.cx = cx
 
     @staticmethod
     def cos(n: float) -> float:
@@ -165,6 +181,43 @@ class Py5:
     def atan2(x: float, y: float) -> float:
         """ Returns the arc tangent of x/y, """
         return math.atan2(x, y) if not Py5.mode else math.atan2(Py5.rad(x), Py5.rad(y))
+
+    @staticmethod
+    def pow(x: Union[float, int], n: Union[float, int]) -> float:
+        """
+        Returns the nth power of x,
+        Alias: root(x, n)
+        """
+        return x**n
+
+    @staticmethod
+    def sqrt(x: Union[float, int]) -> Union[float, str]:
+        """ Returns the square root of x. """
+        if type(x) is int:
+            x = float(x)
+        if not Py5.cx:
+            return math.sqrt(x)
+        else:
+            res = float(math.sqrt(Py5.abs(x)))
+            if x < 0:
+                res = str(res) + ' * i'
+            return res
+
+    @staticmethod
+    def root(x: Union[float, int], n: int) -> Union[float, str]:
+        """
+        Returns the nth root of x.
+        :param x Base
+        :param n Denominator, exponent
+        """
+        if n == 2:
+            return Py5.sqrt(x)
+        else:
+            res = Py5.pow(x, n)
+            if not Py5.cx:
+                return res
+            else:
+                return str(float(Py5.pow(Py5.abs(x), float(1/n)))) + " * i"
 
     @staticmethod
     def __scaled_cos__(n: float) -> float:
@@ -332,24 +385,29 @@ class Py5:
         return string
 
     @staticmethod
-    def random(low=0, high=1) -> float:
-        """ Returns a pseudo random value in the given range if specified. """
-        if low == 0 and high >= 1:
-            return random.random()
-        else:
-            return random.randint(low, high)
-
-    @staticmethod
     def choice(*arr: T) -> T:
         """ Returns a random element from an array, same as *random.choice()* """
         i = random.randint(0, len(arr) - 1)
         return arr[i]
 
     @staticmethod
+    def random(a: Union[int, float] = 0, b: Union[int, float] = 1) -> Union[int, float]:
+        if a is int and b is int:
+            if a == 0 and b == 1:
+                return random.randint(0, 1)
+            else:
+                return random.randint(a, b)
+        if a is float and b is float:
+            if a == 0 and b == 1:
+                return random.random()
+            else:
+                return random.random() * b + a
+
+    @staticmethod
     def noise(x: float, y=0, z=0) -> float:
         """ Returns a random number from a given interval and seed. """
         if Py5.__perlin__ is None:
-            Py5.__perlin__ = [Py5.random() for _ in range(Py5.__PERLIN_SIZE__ + 1)]
+            Py5.__perlin__ = [Py5.random(0.0, 1.0) for _ in range(Py5.__PERLIN_SIZE__ + 1)]
 
         if x < 0:
             x = -x
