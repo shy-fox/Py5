@@ -12,10 +12,10 @@ from Py5Vector import Py5Vector
 
 
 class Py5:
-    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.6-b*; Date: 09/21/21"""
+    """ An all-in-one tool to do multiple tasks easier. Current version: *0.2.6-c*"""
 
     __author__ = "Shiromi"
-    __version__ = "0.2.6-b"
+    __version__ = "0.2.6-c"
     __copyright__ = "Copyright (c) 2020-2021 Shiromi"
 
     T = TypeVar('T', object, int, float, str)
@@ -516,90 +516,26 @@ class Py5:
 
     class Color(object):
         """ A color object which might be useful for *pygame*. """
+
         color: dict[str, float]
 
-        C = TypeVar("C", str, tuple[float, ...], tuple[int, ...])
-
-        def __init__(self, args: C):
+        def __init__(self, *args: float):
             """ Creates a new color object with 4 values: ``r,g,b,a``. """
 
-            valid: list[str] = [
-                "red",
-                "green",
-                "blue",
-                "violet",
-                "pink",
-                "purple",
-                "white",
-                "black",
-                "gray",
-                "grey",
-                "orange",
-                "cyan",
-                "navy",
-                "gold",
-                "silver",
-                "beige",
-                "brown"
-            ]
-
-            if type(args) is tuple[int] or type(args) is tuple[float]:
+            if type(args) is tuple:
                 if len(args) == 1:
-                    color_val = args[0] % 255
-                    self.color = {"r": color_val, "g": color_val, "b": color_val, "a": 255}
+                    color_val = args[0] % 256
+                    self.color = {"r": color_val, "g": color_val, "b": color_val, "a": 256}
                 elif len(args) == 2:
-                    color_val = args[0] % 255
-                    alpha = args[1] % 255
+                    color_val = args[0] % 256
+                    alpha = args[1] % 256
                     self.color = {"r": color_val, "g": color_val, "b": color_val, "a": alpha}
                 elif len(args) == 3:
-                    self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": 255}
+                    self.color = {"r": args[0] % 256, "g": args[1] % 256, "b": args[2] % 256, "a": 255}
                 elif len(args) == 4:
-                    self.color = {"r": args[0] % 255, "g": args[1] % 255, "b": args[2] % 255, "a": args[3] % 255}
+                    self.color = {"r": args[0] % 256, "g": args[1] % 256, "b": args[2] % 256, "a": args[3] % 256}
                 else:
                     raise Py5.Py5Error(f"Expected between 1 or 4 arguments. Got {len(args)} instead")
-            elif type(args) is str:
-                if args.startswith('#'):
-                    args = str(args[1:])
-                    if len(args) == 3:
-                        r = args[0]
-                        g = args[1]
-                        b = args[2]
-
-                        r += r
-                        g += g
-                        b += b
-
-                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": 255}
-                    elif len(args) == 4:
-                        r = args[0]
-                        g = args[1]
-                        b = args[2]
-                        a = args[3]
-
-                        r += r
-                        g += g
-                        b += b
-                        a += a
-
-                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": int(a, 16)}
-                    elif len(args) == 6:
-                        r = args[0:1]
-                        g = args[2:3]
-                        b = args[4:5]
-
-                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": 255}
-                    elif len(args) == 8:
-                        r = args[0:1]
-                        g = args[2:3]
-                        b = args[4:5]
-                        a = args[6:7]
-
-                        self.color = {"r": int(r, 16), "g": int(g, 16), "b": int(b, 16), "a": int(a, 16)}
-                elif Py5.includes(valid, args):
-                    if args == "red":
-                        self.color = {"r": 255, "g": 0, "b": 0, "a": 255}
-                    elif args == "green":
-                        self.color = {"r": 0, "g": 255, "b": 0, "a": 255}
 
         # readonly types
         @property
@@ -626,10 +562,56 @@ class Py5:
             """ Returns the color object with all values. """
             return self.color
 
+        def get_tuple(self) -> tuple[float, float, float, float]:
+            """ Returns the color object as a tuple with all values. """
+            return self.color["r"], self.color["g"], self.color["b"], self.color["a"]
+
     @staticmethod
     def color(*args: float) -> Color:
         """ Creates a new color object. """
         return Py5.Color(*args)
+
+    @staticmethod
+    def hex_color(hex_val: str) -> Color:
+        """ Creates a new color object with given hex values. """
+        if not hex_val.startswith('#'):
+            raise AttributeError(f'Argument \'hex_val\' has to begin with \'#\', but got {hex_val[0]} instead.')
+        args = hex_val[1:]
+        if len(args) == 3:
+            r = args[0]
+            g = args[1]
+            b = args[2]
+
+            r += r
+            g += g
+            b += b
+
+            return Py5.Color(int(r, 16), int(g, 16), int(b, 16), 255)
+        elif len(args) == 4:
+            r = args[0]
+            g = args[1]
+            b = args[2]
+            a = args[3]
+
+            r += r
+            g += g
+            b += b
+            a += a
+
+            return Py5.Color(int(r, 16), int(g, 16), int(b, 16), int(a, 16))
+        elif len(args) == 6:
+            r = args[0:1]
+            g = args[2:3]
+            b = args[4:5]
+
+            return Py5.Color(int(r, 16), int(g, 16), int(b, 16), 255)
+        elif len(args) == 8:
+            r = args[0:1]
+            g = args[2:3]
+            b = args[4:5]
+            a = args[6:7]
+
+            return Py5.Color(int(r, 16), int(g, 16), int(b, 16), int(a, 16))
 
     @staticmethod
     def fill_array(arr: list, value: any = None) -> list:
