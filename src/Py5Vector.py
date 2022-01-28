@@ -1,3 +1,6 @@
+from typing import Union
+from Py5 import Py5
+
 class Py5Vector(object):
 
     """ A point-like object which can be moved. """
@@ -47,6 +50,18 @@ class Py5Vector(object):
 
     def scale(self, amount: float) -> 'Py5Vector':
         return Py5Vector(self.x * amount, self.y * amount, self.z * amount, self.w * amount)
+
+    @staticmethod
+    def random2d(bound: Union[int, float] = 1.0) -> 'Py5Vector':
+        return Py5Vector(Py5.random(0, bound), Py5.random(0, bound))
+
+    @staticmethod
+    def random3d(bound: Union[int, float] = 1.0) -> 'Py5Vector':
+        return Py5Vector(Py5.random(0, bound), Py5.random(0, bound), Py5.random(0, bound))
+
+    @staticmethod
+    def random(bound: Union[int, float] = 1.0) -> 'Py5Vector':
+        return Py5Vector(Py5.random(0, bound), Py5.random(0, bound), Py5.random(0, bound), Py5.random(0, bound))
 
     def get(self) -> dict[str, float]:
         return {"x": self.x, "y": self.y, "z": self.z, "w": self.w} \

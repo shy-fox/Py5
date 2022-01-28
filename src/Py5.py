@@ -472,7 +472,7 @@ class Py5:
         return Py5Vector(x, y, z, w)
 
     @staticmethod
-    def promise(func, on_success=None, on_error=None, exceptions: tuple[Exception] = BaseException) -> any:
+    def promise(func, on_success=None, on_error=None, exception: Exception = BaseException) -> any:
         def default_success() -> None:
             print("Success!")
 
@@ -486,7 +486,7 @@ class Py5:
             else:
                 default_success()
             return x
-        except exceptions:
+        except exception:
             if on_error is not None:
                 on_error()
             else:
